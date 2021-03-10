@@ -6,40 +6,40 @@ const britishOnly = require('./british-only.js')
 class Translator {
     //return JSON with text: org. text and translation: string with <span class=\"highlight\">word</span> around translated word
     // with translation: "Everything looks good to me!" if no translation happens
-    tranlate(text, locale) {
+    translate(text, locale) {
         try {
             let translation = text;
             if (locale == 'american-to-british') {
                 for (const key in americanOnly) {
-                    //console.log(new RegExp(`${key}`, 'gi'));
-                    translation = translation.replace(new RegExp(`${key}`, 'gi'), `<span class=\"highlight\">${americanOnly[key]}</span>`)
+                    translation = translation.replace(new RegExp(`(?<![A-Za-z-])${key}(?![A-Za-z-])`, 'gi'), `<span class=\"highlight\">${americanOnly[key]}</span>`)
                 }
                 for (const key in americanToBritishSpelling) {
-                    //console.log(new RegExp(`${key}`, 'gi'));
-                    translation = translation.replace(new RegExp(`${key}`, 'gi'), `<span class=\"highlight\">${americanToBritishSpelling[key]}</span>`)
+                    translation = translation.replace(new RegExp(`(?<![A-Za-z-])${key}(?![A-Za-z-])`, 'gi'), `<span class=\"highlight\">${americanToBritishSpelling[key]}</span>`)
                 }
                 for (const key in americanToBritishTitles) {
-                    //console.log(new RegExp(`${key}`, 'gi'));
-                    translation = translation.replace(new RegExp(`${key}`, 'gi'), `<span class=\"highlight\">${americanToBritishTitles[key]}</span>`)
+                    translation = translation.replace(new RegExp(`(?<![A-Za-z-])${key}(?![A-Za-z-])`, 'gi'), `<span class=\"highlight\">${americanToBritishTitles[key].replace(americanToBritishTitles[key].charAt(0), americanToBritishTitles[key].charAt(0).toUpperCase())}</span>`)
                 }
-                // for (element in translation.match(/\d{1,2}:\d{1,2}/gi)) {
-                //     translation = translation.replace(element, element.replace(':', '.'));
-                // }
-                translation.match(/\d{1,2}:\d{1,2}/gi).forEach(element => {
-                    translation = translation.replace(element, `<span class=\"highlight\">${element}</span>`).replace(element, element.replace(':', '.'));
-                });
-                //translation =translation.replace(/\d{1,2}:\d{1,2}/gi,translation.match(/\d{1,2}:\d{1,2}/gi))
-
+                if (translation.match(/\d{1,2}:\d{1,2}/gi) != null) {
+                    translation.match(/\d{1,2}:\d{1,2}/gi).forEach(element => {
+                        translation = translation.replace(element, `<span class=\"highlight\">${element}</span>`).replace(element, element.replace(':', '.'));
+                    });
+                }
             } else {
                 for (const key in britishOnly) {
-                    translation = translation.replace(new RegExp(`${key}`, 'gi'), `<span class=\"highlight\">${britishOnly[key]}</span>`)
+                    translation = translation.replace(new RegExp(`(?<![A-Za-z-])${key}(?![A-Za-z-])`, 'gi'), `<span class=\"highlight\">${britishOnly[key]}</span>`)
                 }
-                translation.match(/\d{1,2}.\d{1,2}/gi).forEach(element => {
-                    translation = translation.replace(element, `<span class=\"highlight\">${element}</span>`).replace(element, element.replace('.', ':'));
-                });
+                for (const key in americanToBritishSpelling) {
+                    translation = translation.replace(new RegExp(`(?<![A-Za-z-])${americanToBritishSpelling[key]}(?![A-Za-z-])`, 'gi'), `<span class=\"highlight\">${key}</span>`)
+                }
+                for (const key in americanToBritishTitles) {
+                    translation = translation.replace(new RegExp(`(?<![A-Za-z-])${americanToBritishTitles[key]}(?![A-Za-z-])`, 'gi'), `<span class=\"highlight\">${key.replace(key.charAt(0), key.charAt(0).toUpperCase())}</span>`)
+                }
+                if (translation.match(/\d{1,2}.\d{1,2}/gi) != null) {
+                    translation.match(/\d{1,2}.\d{1,2}/gi).forEach(element => {
+                        translation = translation.replace(element, `<span class=\"highlight\">${element}</span>`).replace(element, element.replace('.', ':'));
+                    });
+                }
             }
-            // console.log(translation);
-            // console.log(translation.replace(new RegExp('condo', 'gi'), `<span class=\"highlight\">flat</span>`))
             translation = translation.replace(translation.charAt(0), translation.charAt(0).toUpperCase())
             return text == translation
                 ? {
